@@ -1,0 +1,31 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:fracturecare;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+
+app:
+  frontend-origin: http://localhost:5173
+  security:
+    jwt-secret: ${TEST_JWT_SECRET}
+    token-ttl: PT2H
+  storage:
+    uploads: ./target/test-data/uploads
+    reports: ./target/test-data/reports
+  ai:
+    mode: mock
+    base-url: http://localhost:8000
+    timeout: PT2S
+  explanation:
+    mode: rules
+    base-url: https://api.groq.com/openai/v1
+    api-key: ""
+    model: openai/gpt-oss-20b
+    timeout: PT2S

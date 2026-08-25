@@ -1,0 +1,57 @@
+spring:
+  application:
+    name: fracturecare-backend
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/fracturecare?createDatabaseIfNotExist=true&serverTimezone=UTC}
+    username: ${DB_USERNAME:fracturecare}
+    password: ${DB_PASSWORD:${DB_PASSWORD}}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  jackson:
+    default-property-inclusion: non_null
+
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: never
+    include-stacktrace: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+app:
+  frontend-origin: ${FRONTEND_ORIGIN:http://localhost:5173}
+  security:
+    jwt-secret: ${APP_JWT_SECRET:change-this-development-secret-before-production-123456789}
+    token-ttl: ${TOKEN_TTL:PT2H}
+  storage:
+    uploads: ${UPLOAD_DIR:./data/uploads}
+    reports: ${REPORT_DIR:./data/reports}
+  ai:
+    mode: ${AI_MODE:mock}
+    base-url: ${AI_BASE_URL:http://localhost:8000}
+    timeout: ${AI_TIMEOUT:PT30S}
+  explanation:
+    mode: ${EXPLANATION_MODE:groq}
+    base-url: ${GROQ_BASE_URL:https://api.groq.com/openai/v1}
+    api-key: ${GROQ_API_KEY:}
+    model: ${GROQ_MODEL:openai/gpt-oss-20b}
+    timeout: ${GROQ_TIMEOUT:PT15S}
