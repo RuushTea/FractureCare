@@ -1,0 +1,19 @@
+# Generated dependencies and build output
+frontend/node_modules/
+frontend/dist/
+backend/target/
+backend/data/
+ai-service/.venv*/
+ai-service/__pycache__/
+ai-service/artifacts/*
+!ai-service/artifacts/.gitkeep
+
+# Local secrets and runtime files
+.env
+**/.env
+**/*.log
+**/*.lock.db
+**/*.mv.db
+
+# Large research data is kept outside the source repository
+Dataset/
