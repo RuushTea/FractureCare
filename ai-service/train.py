@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 
 import numpy as np
@@ -27,7 +28,9 @@ def make_dataset(frame, batch_size: int, shuffle: bool) -> tf.data.Dataset:
     dataset = tf.data.Dataset.from_tensor_slices((paths, labels))
     if shuffle:
         dataset = dataset.shuffle(len(frame), seed=SEED, reshuffle_each_iteration=True)
-    return dataset.map(load, num_parallel_calls=tf.data.AUTOTUNE).batch(batch_size).prefetch(tf.data.AUTOTUNE)
+    dataset = dataset.map(load, num_parallel_calls=tf.data.AUTOTUNE)
+    dataset = dataset.apply(tf.data.experimental.ignore_errors())
+    return dataset.batch(batch_size).prefetch(tf.data.AUTOTUNE)
 
 
 def main() -> None:
@@ -58,10 +61,14 @@ def main() -> None:
         tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=5, restore_best_weights=True),
         tf.keras.callbacks.ReduceLROnPlateau(monitor="val_loss", factor=0.3, patience=2, min_lr=1e-6),
     ]
+    train_dataset = make_dataset(train, args.batch_size, shuffle=True).repeat()
+    validation_dataset = make_dataset(validation, args.batch_size, shuffle=False).repeat()
     history = model.fit(
-        make_dataset(train, args.batch_size, shuffle=True),
-        validation_data=make_dataset(validation, args.batch_size, shuffle=False),
+        train_dataset,
+        validation_data=validation_dataset,
         epochs=args.epochs,
+        steps_per_epoch=math.ceil(len(train) / args.batch_size),
+        validation_steps=math.ceil(len(validation) / args.batch_size),
         class_weight=class_weights,
         callbacks=callbacks,
     )

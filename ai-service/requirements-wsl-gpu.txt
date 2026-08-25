@@ -1,0 +1,4 @@
+# Use this file only inside Ubuntu/WSL2, not native Windows.
+-r requirements.txt
+tensorflow[and-cuda]>=2.21,<2.22
+

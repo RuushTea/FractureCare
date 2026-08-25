@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from pathlib import Path
+import warnings
 
 import pandas as pd
+import tensorflow as tf
 from sklearn.model_selection import train_test_split
 
 from .config import DATASET_CSV, IMAGE_DIR, SEED
@@ -20,12 +22,47 @@ def load_manifest(csv_path: Path = DATASET_CSV, image_dir: Path = IMAGE_DIR) -> 
 
     frame = frame.copy()
     frame["label"] = frame.apply(to_service_class, axis=1)
-    frame["path"] = frame["image_id"].map(lambda name: str(image_dir / Path(str(name)).name))
-    frame = frame[frame["path"].map(lambda path: Path(path).is_file())].reset_index(drop=True)
+
+    # FracAtlas stores files in images/Fractured and images/Non_fractured,
+    # rather than directly under images/. Build one filename index so the
+    # manifest works with both the supplied layout and a flattened copy.
+    image_index = {
+        image_path.name: image_path
+        for image_path in image_dir.rglob("*")
+        if image_path.is_file()
+    }
+    frame["path"] = frame["image_id"].map(
+        lambda name: str(image_index.get(Path(str(name)).name, ""))
+    )
+    frame = frame[frame["path"].map(lambda path: bool(path) and Path(path).is_file())].reset_index(drop=True)
     if frame.empty:
         raise ValueError(f"No image files matching the dataset were found under: {image_dir}")
     frame["label_index"] = frame["label"].map({name: index for index, name in enumerate(CLASS_NAMES)})
-    return frame[["image_id", "path", "label", "label_index"]]
+    manifest = frame[["image_id", "path", "label", "label_index"]]
+
+    # TensorFlow is stricter than some image viewers.  Validate with the same
+    # decoder used by the training pipeline so one malformed JPEG cannot abort
+    # an epoch halfway through.
+    valid = []
+    for path in manifest["path"]:
+        try:
+            # Materialise the tensor so decoding errors are raised here,
+            # rather than later when a tf.data iterator reaches the file.
+            tf.io.decode_jpeg(tf.io.read_file(path), channels=3).numpy()
+            valid.append(True)
+        except (tf.errors.InvalidArgumentError, tf.errors.OpError, OSError):
+            valid.append(False)
+    invalid_count = len(valid) - sum(valid)
+    if invalid_count:
+        warnings.warn(
+            f"Skipped {invalid_count} unreadable image file(s) from the manifest.",
+            RuntimeWarning,
+            stacklevel=2,
+        )
+        manifest = manifest.loc[valid].reset_index(drop=True)
+    if manifest.empty:
+        raise ValueError(f"No readable image files were found under: {image_dir}")
+    return manifest
 
 
 def split_manifest(frame: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:

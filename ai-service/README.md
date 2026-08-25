@@ -13,6 +13,8 @@ The service expects the supplied dataset at:
 
 The CSV is converted into the three classes used by the application:
 
+The loader searches recursively under `images/`, so the supplied FracAtlas layout (`images/Fractured/` and `images/Non_fractured/`) is supported directly. It also validates files with TensorFlow's JPEG decoder and skips malformed images with a warning instead of failing during an epoch. The `tf.data` pipelines include a second error filter as a safeguard.
+
 | FracAtlas `fractured` / `fracture_count` | Service class |
 | --- | --- |
 | `fractured=0` and `fracture_count=0` | `NO_FRACTURE` |
@@ -31,13 +33,19 @@ The notebooks create a stratified train/validation/test split, calculate class w
    python -m pip install -r requirements.txt
    ```
 
-4. Open `notebooks/FracAtlas_Model_Comparison.ipynb` and use **Run All** to train and compare the three models:
+4. You can train each model independently in its own notebook:
+
+   - `notebooks/01_Custom_CNN.ipynb` — lightweight, transparent baseline
+   - `notebooks/02_MobileNetV2.ipynb` — efficient transfer-learning candidate
+   - `notebooks/03_EfficientNetB0.ipynb` — accuracy-oriented transfer-learning candidate
+
+   Each notebook uses the same fixed stratified split and writes its model and macro-metric JSON file under `artifacts/models/`. When you are ready to compare all three on the same split, use `notebooks/FracAtlas_Model_Comparison.ipynb`:
 
    ```powershell
    jupyter lab
    ```
 
-   Select the `Python (FractureCare AI)` kernel. The comparison notebook trains a custom CNN, MobileNetV2 and EfficientNetB0 separately, then selects the strongest model by macro F1. `notebooks/FracAtlas_Train_Model.ipynb` remains available when you want to experiment with the baseline model alone.
+   Select the `Python (FractureCare AI)` kernel. The comparison notebook trains a custom CNN, MobileNetV2 and EfficientNetB0 separately, then selects the strongest model by macro F1 and copies it to `artifacts/fracture_classifier.keras`. `notebooks/FracAtlas_Train_Model.ipynb` remains available as an older baseline walkthrough.
 
 5. Start the API after training:
 
@@ -46,6 +54,33 @@ The notebooks create a stratified train/validation/test split, calculate class w
    ```
 
 The API listens on `http://127.0.0.1:8090` by default. The Spring Boot integration can be added later using the contract below.
+
+### RTX GPU on Windows
+
+Your RTX 5060 and NVIDIA driver are detected, but the native Windows TensorFlow package is CPU-only for current TensorFlow releases. TensorFlow 2.10 was the last native-Windows CUDA release; current TensorFlow GPU training should run inside WSL2. [TensorFlow documents this limitation](https://www.tensorflow.org/install/pip), and Microsoft recommends CUDA in WSL for NVIDIA GPUs.
+
+Inside an Ubuntu/WSL2 terminal, create a separate environment and install the GPU dependencies:
+
+```bash
+cd /mnt/c/Users/Rushd/OneDrive\ -\ wslqd/Documents/Uni\ Documents/ICBT/Development\ Project\ Final\ Year/Final\ Documents/fracturecare-prototype/ai-service
+python3 -m venv .venv-gpu
+source .venv-gpu/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements-wsl-gpu.txt
+python -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
+```
+
+The ready-to-use environment created for this machine is `/home/rushd/fracturecare-ai-venv`. From the project folder, source `gpu-env.sh` before opening Jupyter or starting the API:
+
+```bash
+source gpu-env.sh
+python -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
+jupyter lab
+```
+
+In PyCharm, select `/home/rushd/fracturecare-ai-venv/bin/python` as the WSL interpreter. Keep the `LD_LIBRARY_PATH` environment variable from `gpu-env.sh` in the run configuration.
+
+Select the WSL interpreter/kernel (`.venv-gpu`) in PyCharm or Jupyter. It should print a GPU device such as `PhysicalDevice(name='/physical_device:GPU:0', ...)`. Do not install the old DirectML plugin for this project: Microsoft marks it discontinued and it only supports Python up to 3.10.
 
 To install the notebook tools into the supported environment:
 
@@ -102,3 +137,4 @@ py -3.12 -m venv .venv312
 The service returns `503 MODEL_NOT_READY` until a trained artifact exists. It returns a `400` response for unsupported, unreadable or oversized images and does not expose internal stack traces.
 
 This model is research/development software. It must not be described as a medical diagnosis or used to make treatment or emergency decisions. A qualified professional must review every result.
+
