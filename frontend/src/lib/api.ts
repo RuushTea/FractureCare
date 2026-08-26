@@ -1,4 +1,4 @@
-import type { AuthResponse, PageResponse, Prediction, ReportResponse, User } from '../types'
+import type { AuthResponse, Notification, PageResponse, Prediction, ReportResponse, ReviewDetail, ReviewSummary, User } from '../types'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080'
 
@@ -32,6 +32,8 @@ export const api = {
     request<AuthResponse>('/api/auth/register', { method: 'POST', body: JSON.stringify(body) }),
   login: (body: { email: string; password: string }) =>
     request<AuthResponse>('/api/auth/login', { method: 'POST', body: JSON.stringify(body) }),
+  professionalRegister: (body: { fullName: string; email: string; username: string; password: string }) => request<AuthResponse>('/api/auth/professional/register', { method: 'POST', body: JSON.stringify(body) }),
+  professionalLogin: (body: { username: string; password: string }) => request<AuthResponse>('/api/auth/professional/login', { method: 'POST', body: JSON.stringify(body) }),
   me: (token: string) => request<User>('/api/auth/me', {}, token),
   createPrediction: (image: File, token: string) => {
     const form = new FormData()
@@ -41,6 +43,7 @@ export const api = {
   getPrediction: (id: number, token: string) => request<Prediction>(`/api/predictions/${id}`, {}, token),
   explainPrediction: (id: number, token: string) =>
     request<Prediction>(`/api/predictions/${id}/explanation`, { method: 'POST' }, token),
+  requestProfessionalReview: (id: number, token: string) => request<Prediction['professionalReview']>(`/api/predictions/${id}/professional-review`, { method: 'POST' }, token),
   history: (page: number, token: string) => request<PageResponse<Prediction>>(`/api/predictions?page=${page}&size=8`, {}, token),
   createReport: (predictionId: number, token: string) =>
     request<ReportResponse>(`/api/predictions/${predictionId}/report`, { method: 'POST' }, token),
@@ -57,4 +60,11 @@ export const api = {
     link.remove()
     URL.revokeObjectURL(url)
   },
+  notifications: (token: string) => request<Notification[]>('/api/notifications', {}, token),
+  unreadNotifications: (token: string) => request<{ count: number }>('/api/notifications/unread-count', {}, token),
+  markNotificationRead: (id: number, token: string) => request<Notification>(`/api/notifications/${id}/read`, { method: 'PATCH' }, token),
+  professionalReviews: (token: string) => request<ReviewSummary[]>('/api/professional/reviews', {}, token),
+  professionalReview: (id: number, token: string) => request<ReviewDetail>(`/api/professional/reviews/${id}`, {}, token),
+  professionalReviewImageUrl: (id: number) => `${API_BASE}/api/professional/reviews/${id}/image`,
+  completeProfessionalReview: (id: number, body: { agreesWithAi: boolean; comment: string }, token: string) => request<ReviewDetail>(`/api/professional/reviews/${id}/complete`, { method: 'POST', body: JSON.stringify(body) }, token),
 }

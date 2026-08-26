@@ -16,6 +16,8 @@ export function ResultPage({ id }: { id: number }) {
   const [downloading, setDownloading] = useState(false)
   const [askingGroq, setAskingGroq] = useState(false)
   const [explanationError, setExplanationError] = useState('')
+  const [requestingReview, setRequestingReview] = useState(false)
+  const [reviewError, setReviewError] = useState('')
 
   useEffect(() => {
     if (!token) return
@@ -49,6 +51,14 @@ export function ResultPage({ id }: { id: number }) {
     }
   }
 
+  async function requestReview() {
+    if (!token) return
+    setRequestingReview(true); setReviewError('')
+    try { const state = await api.requestProfessionalReview(id, token); setPrediction(current => current ? { ...current, professionalReview: state } : current) }
+    catch (exception) { setReviewError(exception instanceof ApiError ? exception.message : 'The professional review request could not be completed.') }
+    finally { setRequestingReview(false) }
+  }
+
   return (
     <AppShell active="result">
       <section className="page-heading"><div><span className="eyebrow">Analysis result</span><h1>Your X-ray review</h1><p>{prediction ? `Completed ${formatDate(prediction.createdAt)}` : 'Loading the result…'}</p></div><button className="secondary-button" onClick={() => navigate('/dashboard')}>New analysis</button></section>
@@ -79,6 +89,7 @@ export function ResultPage({ id }: { id: number }) {
             <button className="primary-button" onClick={askGroq} disabled={askingGroq}>{askingGroq ? 'Asking Groq AI...' : 'Ask Groq AI about this result'}</button>
             <small>Groq explains the existing result only. It cannot inspect the image, change the prediction or provide a diagnosis.</small>
           </article>}
+          {prediction.professionalReview?.status === 'COMPLETED' ? <article className="ai-explanation-card groq-result"><div className="explanation-heading"><div><span className="eyebrow">Medical professional review</span><h2>Independent review completed</h2></div><span className="explanation-source">Completed</span></div><p><b>Professional agreed with AI result:</b> {prediction.professionalReview.agreesWithAi ? 'Yes' : 'No'}</p><p><b>Professional comments:</b> {prediction.professionalReview.comment}</p><small>Reviewed {prediction.professionalReview.completedAt ? formatDate(prediction.professionalReview.completedAt) : ''}{prediction.professionalReview.reviewerName ? ` by ${prediction.professionalReview.reviewerName}` : ''}</small></article> : prediction.professionalReview?.status === 'PENDING' ? <article className="groq-invitation"><span className="eyebrow">Medical professional review</span><h2>Awaiting medical professional review</h2><p>Your consented case is in the professional queue. The AI result and its safety guidance remain unchanged.</p></article> : <article className="groq-invitation"><span className="eyebrow">Optional second opinion</span><h2>Review from a medical professional</h2><p>The original X-ray, AI prediction, confidence and relevant result information will be shared with a registered medical professional. Your explicit consent is required.</p>{reviewError && <Alert>{reviewError}</Alert>}<button className="primary-button" onClick={requestReview} disabled={requestingReview}>{requestingReview ? 'Requesting review…' : 'Consent & request professional review'}</button><small>You can request this independently of the Groq explanation.</small></article>}
         </>
       )}
     </AppShell>

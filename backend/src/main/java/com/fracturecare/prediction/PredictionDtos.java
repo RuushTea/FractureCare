@@ -5,6 +5,7 @@ import com.fracturecare.explanation.ExplanationSource;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import com.fracturecare.professionalreview.ProfessionalReviewDtos;
 
 public final class PredictionDtos {
     private PredictionDtos() {}
@@ -21,13 +22,17 @@ public final class PredictionDtos {
             ExplanationResponse explanation,
             String failureMessage,
             Instant createdAt,
-            Instant completedAt
+            Instant completedAt,
+            ProfessionalReviewDtos.UserReviewState professionalReview
     ) {
         public static PredictionResponse from(Prediction prediction) {
+            return from(prediction, null);
+        }
+        public static PredictionResponse from(Prediction prediction, ProfessionalReviewDtos.UserReviewState review) {
             return new PredictionResponse(prediction.getId(), prediction.getOriginalFileName(), prediction.getStatus(),
                     prediction.getPredictedClass(), prediction.getRiskCategory(), prediction.getConfidence(),
                     prediction.getModelVersion(), prediction.isSimulated(), ExplanationResponse.from(prediction), prediction.getFailureMessage(),
-                    prediction.getCreatedAt(), prediction.getCompletedAt());
+                    prediction.getCreatedAt(), prediction.getCompletedAt(), review);
         }
     }
 
@@ -39,7 +44,7 @@ public final class PredictionDtos {
             ExplanationSource source,
             String model
     ) {
-        static ExplanationResponse from(Prediction prediction) {
+        public static ExplanationResponse from(Prediction prediction) {
             if (prediction.getExplanationSource() == null) return null;
             return new ExplanationResponse(prediction.getExplanationSummary(),
                     prediction.getExplanationConfidenceMeaning(), prediction.getExplanationNextStep(),

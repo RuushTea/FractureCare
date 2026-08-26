@@ -1,6 +1,6 @@
 # FractureCare AI service
 
-This is the separate Python/TensorFlow service for training and serving the FracAtlas fracture classifier. It is intentionally independent from the Spring Boot backend and React frontend so the model can be developed in PyCharm.
+This is the separate Python/TensorFlow service for training and serving the FracAtlas fracture classifier. It is independent from the Spring Boot backend and React frontend so the model can be developed in PyCharm.
 
 ## Dataset
 
@@ -36,6 +36,16 @@ The notebooks create a stratified train/validation/test split, calculate class w
 }
 ```
 
+Train one architecture at a time with the same reproducible data split:
+
+```powershell
+python train.py --model custom_cnn
+python train.py --model mobilenetv2
+python train.py --model efficientnetb0
+```
+
+Performance values are written only after a local training/evaluation run; no metrics are fabricated in this repository.
+
 `POST /predict` accepts one `image` multipart field containing a JPEG or PNG:
 
 ```json
@@ -51,4 +61,3 @@ The notebooks create a stratified train/validation/test split, calculate class w
   }
 }
 ```
-

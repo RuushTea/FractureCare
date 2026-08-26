@@ -4,7 +4,7 @@ spring:
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/fracturecare?createDatabaseIfNotExist=true&serverTimezone=UTC}
     username: ${DB_USERNAME:fracturecare}
-    password: ${DB_PASSWORD:${DB_PASSWORD}}
+    password: ${DB_PASSWORD:fracturecare_dev}
   jpa:
     open-in-view: false
     hibernate:
@@ -46,7 +46,7 @@ app:
     uploads: ${UPLOAD_DIR:./data/uploads}
     reports: ${REPORT_DIR:./data/reports}
   ai:
-    mode: ${AI_MODE:mock}
+    mode: ${AI_MODE:real}
     base-url: ${AI_BASE_URL:http://localhost:8000}
     timeout: ${AI_TIMEOUT:PT30S}
   explanation:

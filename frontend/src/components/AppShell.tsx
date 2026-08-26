@@ -4,25 +4,22 @@ import { navigate } from '../lib/route'
 import { HistoryIcon, ShieldIcon, UploadIcon } from './Icons'
 
 export function Logo() {
-  const { token } = useAuth()
+  const { token, user } = useAuth()
   return (
-    <button className="brand" type="button" onClick={() => navigate(token ? '/dashboard' : '/')} aria-label="FractureCare home">
+    <button className="brand" type="button" onClick={() => navigate(token ? (user?.role === 'MEDICAL_PROFESSIONAL' ? '/professional/reviews' : '/dashboard') : '/')} aria-label="FractureCare home">
       <span className="brand__mark"><span></span><span></span></span>
       <span>Fracture<span>Care</span></span>
     </button>
   )
 }
 
-export function AppShell({ active, children }: { active: 'dashboard' | 'history' | 'result'; children: ReactNode }) {
-  const { user, logout } = useAuth()
+export function AppShell({ active, children }: { active: 'dashboard' | 'history' | 'result' | 'notifications' | 'professional'; children: ReactNode }) {
+  const { user, logout, unreadCount } = useAuth()
   return (
     <div className="app-shell">
       <header className="topbar">
         <Logo />
-        <nav aria-label="Main navigation">
-          <button className={active === 'dashboard' ? 'nav-link active' : 'nav-link'} onClick={() => navigate('/dashboard')}><UploadIcon />New analysis</button>
-          <button className={active === 'history' ? 'nav-link active' : 'nav-link'} onClick={() => navigate('/history')}><HistoryIcon />History</button>
-        </nav>
+        <nav aria-label="Main navigation">{user?.role === 'MEDICAL_PROFESSIONAL' ? <button className={active === 'professional' ? 'nav-link active' : 'nav-link'} onClick={() => navigate('/professional/reviews')}><HistoryIcon />Reviews</button> : <><button className={active === 'dashboard' ? 'nav-link active' : 'nav-link'} onClick={() => navigate('/dashboard')}><UploadIcon />New analysis</button><button className={active === 'history' ? 'nav-link active' : 'nav-link'} onClick={() => navigate('/history')}><HistoryIcon />History</button><button className={active === 'notifications' ? 'nav-link active' : 'nav-link'} onClick={() => navigate('/notifications')}>Notifications{unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}</button></>}</nav>
         <div className="account-menu">
           <span className="avatar" aria-hidden="true">{user?.fullName?.charAt(0).toUpperCase() ?? 'U'}</span>
           <div><strong>{user?.fullName}</strong><span>{user?.email}</span></div>

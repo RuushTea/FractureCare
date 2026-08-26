@@ -38,8 +38,10 @@ public class JwtTokenService {
     public String issue(UserAccount user) {
         Instant now = clock.instant();
         Map<String, Object> claims = new LinkedHashMap<>();
-        claims.put("sub", user.getEmail());
-        claims.put("uid", user.getId());
+            claims.put("sub", user.getEmail());
+            claims.put("uid", user.getId());
+            claims.put("role", user.getRole().name());
+            if (user.getUsername() != null) claims.put("username", user.getUsername());
         claims.put("iat", now.getEpochSecond());
         claims.put("exp", now.plus(properties.security().tokenTtl()).getEpochSecond());
         try {
@@ -68,7 +70,10 @@ public class JwtTokenService {
             if (clock.instant().getEpochSecond() >= expiresAt) {
                 throw new IllegalArgumentException("Token has expired");
             }
-            return new AuthenticatedUser(((Number) claims.get("uid")).longValue(), (String) claims.get("sub"));
+            String roleValue = String.valueOf(claims.getOrDefault("role", "USER"));
+            String username = claims.get("username") == null ? null : String.valueOf(claims.get("username"));
+            return new AuthenticatedUser(((Number) claims.get("uid")).longValue(), (String) claims.get("sub"), username,
+                    com.fracturecare.user.AccountRole.valueOf(roleValue));
         } catch (RuntimeException exception) {
             throw exception;
         } catch (Exception exception) {

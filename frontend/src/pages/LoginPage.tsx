@@ -36,6 +36,7 @@ export function LoginPage() {
         <button className="primary-button" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}<ArrowIcon /></button>
       </form>
       <p className="auth-switch">New to FractureCare? <button className="inline-link" onClick={() => navigate('/register')}>Create an account</button></p>
+      <p className="auth-switch"><button className="inline-link" onClick={() => navigate('/professional/login')}>Medical professional sign in</button></p>
     </AuthShell>
   )
 }

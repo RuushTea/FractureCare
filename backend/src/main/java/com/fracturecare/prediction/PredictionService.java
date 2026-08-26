@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import com.fracturecare.professionalreview.ProfessionalReviewRepository;
 
 @Service
 public class PredictionService {
@@ -24,16 +25,18 @@ public class PredictionService {
     private final InferenceClient inferenceClient;
     private final RiskCategoryService riskCategoryService;
     private final ExplanationService explanationService;
+    private final ProfessionalReviewRepository professionalReviews;
 
     public PredictionService(PredictionRepository predictions, UserRepository users, FileStorageService storage,
                              InferenceClient inferenceClient, RiskCategoryService riskCategoryService,
-                             ExplanationService explanationService) {
+                             ExplanationService explanationService, ProfessionalReviewRepository professionalReviews) {
         this.predictions = predictions;
         this.users = users;
         this.storage = storage;
         this.inferenceClient = inferenceClient;
         this.riskCategoryService = riskCategoryService;
         this.explanationService = explanationService;
+        this.professionalReviews = professionalReviews;
     }
 
     @Transactional
@@ -48,7 +51,7 @@ public class PredictionService {
         } catch (RuntimeException exception) {
             prediction.fail("The prediction service could not complete this request. Please try again later.");
         }
-        return PredictionDtos.PredictionResponse.from(predictions.save(prediction));
+        return response(predictions.save(prediction), userId);
     }
 
     @Transactional
@@ -59,18 +62,18 @@ public class PredictionService {
         }
         prediction.addExplanation(explanationService.explain(prediction.getPredictedClass(),
                 prediction.getRiskCategory(), prediction.getConfidence(), prediction.getModelVersion()));
-        return PredictionDtos.PredictionResponse.from(predictions.save(prediction));
+        return response(predictions.save(prediction), userId);
     }
 
     @Transactional(readOnly = true)
     public Page<PredictionDtos.PredictionResponse> history(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), 50), Sort.unsorted());
-        return predictions.findByUserIdOrderByCreatedAtDesc(userId, pageable).map(PredictionDtos.PredictionResponse::from);
+        return predictions.findByUserIdOrderByCreatedAtDesc(userId, pageable).map(p -> response(p, userId));
     }
 
     @Transactional(readOnly = true)
     public PredictionDtos.PredictionResponse get(Long userId, Long predictionId) {
-        return PredictionDtos.PredictionResponse.from(requireOwned(userId, predictionId));
+        return response(requireOwned(userId, predictionId), userId);
     }
 
     @Transactional(readOnly = true)
@@ -86,4 +89,12 @@ public class PredictionService {
     }
 
     public record ImageDownload(Resource resource, String contentType) {}
+
+    private PredictionDtos.PredictionResponse response(Prediction prediction, Long userId) {
+        var review = professionalReviews.findByPredictionId(prediction.getId())
+                .filter(r -> r.getPrediction().getUser().getId().equals(userId))
+                .map(r -> new com.fracturecare.professionalreview.ProfessionalReviewDtos.UserReviewState(r.getStatus(), r.getConsentedAt(), r.getCompletedAt(), r.getAgreesWithAi(), r.getComment(), r.getReviewer() == null ? null : r.getReviewer().getFullName()))
+                .orElse(null);
+        return PredictionDtos.PredictionResponse.from(prediction, review);
+    }
 }

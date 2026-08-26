@@ -6,6 +6,7 @@ type AuthContextValue = {
   token: string | null
   user: User | null
   ready: boolean
+  unreadCount: number
   accept: (response: AuthResponse) => void
   logout: () => void
 }
@@ -17,6 +18,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() => sessionStorage.getItem(TOKEN_KEY))
   const [user, setUser] = useState<User | null>(null)
   const [ready, setReady] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
 
   useEffect(() => {
     if (!token) {
@@ -32,10 +34,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setReady(true))
   }, [token])
 
+  useEffect(() => {
+    if (!token || !user || user.role !== 'USER') { setUnreadCount(0); return }
+    const refresh = () => api.unreadNotifications(token).then(result => setUnreadCount(result.count)).catch(() => undefined)
+    refresh()
+    const timer = window.setInterval(refresh, 45_000)
+    return () => window.clearInterval(timer)
+  }, [token, user])
+
   const value = useMemo<AuthContextValue>(() => ({
     token,
     user,
     ready,
+    unreadCount,
     accept: response => {
       sessionStorage.setItem(TOKEN_KEY, response.token)
       setToken(response.token)

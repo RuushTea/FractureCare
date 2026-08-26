@@ -1,3 +1,5 @@
 package com.fracturecare.security;
 
-public record AuthenticatedUser(Long id, String email) {}
+import com.fracturecare.user.AccountRole;
+
+public record AuthenticatedUser(Long id, String email, String username, AccountRole role) {}

@@ -2,6 +2,8 @@ export type User = {
   id: number
   fullName: string
   email: string
+  username?: string
+  role: 'USER' | 'MEDICAL_PROFESSIONAL'
   address?: string
   createdAt: string
 }
@@ -33,7 +35,13 @@ export type Prediction = {
   failureMessage?: string
   createdAt: string
   completedAt?: string
+  professionalReview?: ProfessionalReviewState
 }
+
+export type ProfessionalReviewState = { status: 'PENDING' | 'COMPLETED'; consentedAt: string; completedAt?: string; agreesWithAi?: boolean; comment?: string; reviewerName?: string }
+export type ReviewSummary = { reviewId: number; predictionId: number; predictionReference: string; dateRequested: string; predictedClass: string; riskCategory: string; confidence: number; modelVersion: string; status: 'PENDING' | 'COMPLETED' }
+export type ReviewDetail = ReviewSummary & { originalFileName: string; createdAt: string; explanation?: Prediction['explanation']; consentedAt: string; completedAt?: string; agreesWithAi?: boolean; comment?: string; reviewerName?: string }
+export type Notification = { id: number; type: 'PROFESSIONAL_REVIEW_COMPLETED'; predictionId?: number; title: string; message: string; read: boolean; createdAt: string }
 
 export type PageResponse<T> = {
   content: T[]

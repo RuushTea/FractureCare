@@ -7,12 +7,14 @@ from pathlib import Path
 
 import numpy as np
 import tensorflow as tf
+from sklearn.metrics import confusion_matrix
 from sklearn.utils.class_weight import compute_class_weight
 
 from app.config import ARTIFACT_DIR, IMAGE_SIZE, MODEL_VERSION, SEED
 from app.data import load_manifest, split_manifest
 from app.labels import CLASS_NAMES
-from app.model import build_model
+from app.model import MODEL_NAMES, build_model, build_transfer_model
+from app.metrics import calculate_classification_metrics
 
 
 def make_dataset(frame, batch_size: int, shuffle: bool) -> tf.data.Dataset:
@@ -35,6 +37,7 @@ def make_dataset(frame, batch_size: int, shuffle: bool) -> tf.data.Dataset:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Train the FracAtlas fracture classifier")
+    parser.add_argument("--model", choices=MODEL_NAMES, default="custom_cnn")
     parser.add_argument("--epochs", type=int, default=20)
     parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--output", type=Path, default=ARTIFACT_DIR)
@@ -54,7 +57,7 @@ def main() -> None:
     )
     class_weights = {index: float(weight) for index, weight in enumerate(weights)}
 
-    model = build_model()
+    model = build_model() if args.model == "custom_cnn" else build_transfer_model(args.model)
     args.output.mkdir(parents=True, exist_ok=True)
     callbacks = [
         tf.keras.callbacks.ModelCheckpoint(args.output / "fracture_classifier.keras", monitor="val_accuracy", save_best_only=True),
@@ -74,10 +77,14 @@ def main() -> None:
     )
 
     best_model = tf.keras.models.load_model(args.output / "fracture_classifier.keras")
-    test_loss, test_accuracy = best_model.evaluate(make_dataset(test, args.batch_size, shuffle=False), verbose=0)
+    test_dataset = make_dataset(test, args.batch_size, shuffle=False)
+    test_loss, test_accuracy = best_model.evaluate(test_dataset, verbose=0)
+    probabilities = best_model.predict(test_dataset, verbose=0)
+    test_metrics = calculate_classification_metrics(test["label_index"].to_numpy(), np.argmax(probabilities, axis=1))
     test.to_csv(args.output / "test_manifest.csv", index=False)
     metadata = {
         "modelVersion": MODEL_VERSION,
+        "architecture": args.model,
         "classes": list(CLASS_NAMES),
         "imageSize": list(IMAGE_SIZE),
         "datasetCsv": str(manifest.attrs.get("dataset_csv", "Dataset/FracAtlas/dataset.csv")),
@@ -87,6 +94,12 @@ def main() -> None:
         "classWeights": class_weights,
         "testLoss": float(test_loss),
         "testAccuracy": float(test_accuracy),
+        "accuracy": test_metrics["accuracy"],
+        "precision": test_metrics["macro_precision"],
+        "recall": test_metrics["macro_recall"],
+        "F1": test_metrics["macro_f1"],
+        "classMetrics": test_metrics,
+        "confusionMatrix": confusion_matrix(test["label_index"], np.argmax(probabilities, axis=1), labels=np.arange(len(CLASS_NAMES))).tolist(),
         "epochsCompleted": len(history.history["loss"]),
     }
     (args.output / "model_metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
@@ -95,4 +108,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

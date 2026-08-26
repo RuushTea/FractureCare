@@ -1,0 +1,9 @@
+import { useEffect, useState } from 'react'
+import { useAuth } from '../auth/AuthContext'
+import { AppShell } from '../components/AppShell'
+import { StatusPill } from '../components/StatusPill'
+import { ApiError, api } from '../lib/api'
+import { formatDate, label, percentage } from '../lib/format'
+import { navigate } from '../lib/route'
+import type { ReviewSummary } from '../types'
+export function ProfessionalReviewsPage() { const { token } = useAuth(); const [reviews, setReviews] = useState<ReviewSummary[]>([]); const [error, setError] = useState(''); useEffect(() => { if (token) api.professionalReviews(token).then(setReviews).catch(e => setError(e instanceof ApiError ? e.message : 'Reviews could not be loaded.')) }, [token]); return <AppShell active="professional"><section className="page-heading"><div><span className="eyebrow">Medical professional workspace</span><h1>Pending reviews</h1><p>Cases are ordered by the time the user provided consent.</p></div></section>{error && <div className="alert alert--error">{error}</div>}<section className="history-card">{reviews.length === 0 ? <div className="empty-state"><h2>No pending reviews</h2><p>New consented cases will appear here.</p></div> : <div className="history-list">{reviews.map(review => <button className="history-row" key={review.reviewId} onClick={() => navigate(`/professional/reviews/${review.reviewId}`)}><span className="history-ref">{review.predictionReference}</span><div><strong>{label(review.predictedClass)}</strong><span>Requested {formatDate(review.dateRequested)}</span></div><StatusPill value={review.riskCategory} /><div className="history-confidence"><strong>{percentage(review.confidence)}</strong><span>confidence</span></div><span className="icon-button">Review →</span></button>)}</div>}</section></AppShell> }

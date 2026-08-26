@@ -13,6 +13,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import javax.imageio.ImageIO;
+import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -30,12 +31,11 @@ class FractureCareFlowIntegrationTest {
 
     @Test
     void userCanRegisterUploadReviewHistoryAndDownloadAReport() throws Exception {
-        String registration = """
-                {"fullName":"Test User","email":"test.user@example.com","address":"Colombo","password":"SecurePass123"}
-                """;
+        String email = "test.user+" + UUID.randomUUID().toString().substring(0, 8) + "@example.com";
+        String registration = "{\"fullName\":\"Test User\",\"email\":\"" + email + "\",\"address\":\"Colombo\",\"password\":\"SecurePass123\"}";
         String authJson = mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content(registration))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.user.email").value("test.user@example.com"))
+                .andExpect(jsonPath("$.user.email").value(email))
                 .andReturn().getResponse().getContentAsString();
         String token = objectMapper.readTree(authJson).get("token").asText();
 

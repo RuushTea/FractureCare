@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 
 @Component
-@ConditionalOnProperty(name = "app.ai.mode", havingValue = "mock", matchIfMissing = true)
+@ConditionalOnProperty(name = "app.ai.mode", havingValue = "mock")
 public class MockInferenceClient implements InferenceClient {
     @Override
     public InferenceResult predict(Path imagePath) {
