@@ -1,19 +1,31 @@
-# Generated dependencies and build output
-frontend/node_modules/
-frontend/dist/
+# Build output
 backend/target/
+frontend/dist/
+frontend/node_modules/
+
+# Local runtime data
 backend/data/
-ai-service/.venv*/
-ai-service/__pycache__/
-ai-service/artifacts/*
-!ai-service/artifacts/.gitkeep
-
-# Local secrets and runtime files
-.env
-**/.env
-**/*.log
-**/*.lock.db
-**/*.mv.db
-
-# Large research data is kept outside the source repository
+data/
 Dataset/
+ai-service/.venv/
+ai-service/.venv-*/
+ai-service/.jupyter/
+ai-service/__pycache__/
+ai-service/**/__pycache__/
+*.log
+*.lock.db
+*.mv.db
+
+# Local training caches and intermediate model trials
+ai-service/artifacts/tuning/
+ai-service/artifacts/*manifest.csv
+
+# Local configuration and editor files
+.env
+.idea/
+.vscode/
+*.iml
+docs/.Rhistory
+.DS_Store
+Thumbs.db
+
