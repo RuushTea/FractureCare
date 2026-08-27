@@ -27,7 +27,7 @@ export function AppShell({ active, children }: { active: 'dashboard' | 'history'
         </div>
       </header>
       <main>{children}</main>
-      <footer className="site-footer"><ShieldIcon /> FractureCare provides educational second-opinion support. It does not provide a medical diagnosis.</footer>
+      <footer className="site-footer"><ShieldIcon /> FractureCare provides educational second-opinion support.</footer>
     </div>
   )
 }
@@ -56,3 +56,4 @@ export function AuthShell({ children, heading, intro }: { children: ReactNode; h
     </main>
   )
 }
+
