@@ -34,13 +34,13 @@ export function LandingPage() {
       <section className="landing-hero">
         <div className="landing-hero__content">
           <span className="eyebrow">AI-assisted fracture detection as a second opinion</span>
-          <h1>Another perspective on an X-ray result.</h1>
+          <h1>An AI-Assisted Fracture Detection</h1>
           <p>FractureCare helps you review a musculoskeletal X-ray for possible fracture patterns, understand the result in straightforward language and prepare for a conversation with a qualified medical professional.</p>
           <div className="landing-actions">
             <button className="primary-button" type="button" onClick={() => navigate('/register')}>Get started <ArrowIcon /></button>
             <button className="secondary-button" type="button" onClick={() => navigate('/login')}>I already have an account</button>
           </div>
-          <p className="landing-safety"><ShieldIcon /> Decision support only, not a diagnosis or emergency service.</p>
+          <p className="landing-safety"><ShieldIcon /> For second opinions, not meant for emergency service.</p>
         </div>
 
         <aside className="landing-preview" aria-label="What a FractureCare review includes">
@@ -48,11 +48,12 @@ export function LandingPage() {
             <span className="eyebrow">Your review</span>
             <span className="landing-private"><ShieldIcon /> Private</span>
           </div>
-          <h2>Useful context for the next conversation.</h2>
+          <h2>Useful as a Second Opinion</h2>
           <div className="landing-result-list">
             <div><span><CheckIcon /></span><p><strong>Possible fracture pattern</strong>A software-generated category for professional review</p></div>
             <div><span><CheckIcon /></span><p><strong>Confidence context</strong>How certain the system is about its classification</p></div>
             <div><span><CheckIcon /></span><p><strong>Optional AI explanation by Groq</strong>Plain-language help, provided only when you ask</p></div>
+            <div><span><CheckIcon /></span><p><strong>Medical professional review</strong>Request a consented review from a registered medical professional</p></div>
           </div>
           <div className="landing-preview__note">Every result includes clear safety guidance and encourages qualified medical review.</div>
         </aside>
@@ -82,13 +83,13 @@ export function LandingPage() {
         <div className="landing-step-grid">
           <article><span>01</span><h3>Upload</h3><p>Add one musculoskeletal X-ray that you have permission to use.</p></article>
           <article><span>02</span><h3>Review</h3><p>Read the system's classification, confidence and safety information.</p></article>
-          <article><span>03</span><h3>Discuss</h3><p>Use the result to support — never replace — a conversation with a medical professional.</p></article>
+          <article><span>03</span><h3>Discuss</h3><p>Use the result to support a conversation with a medical professional.</p></article>
         </div>
       </section>
 
       <section className="landing-boundary">
         <span className="landing-boundary__icon"><ShieldIcon /></span>
-        <div><span className="eyebrow">Important</span><h2>Only for support, not diagnosis</h2></div>
+        <div><span className="eyebrow">Important</span><h2>Only for support</h2></div>
         <p>FractureCare cannot confirm or rule out a fracture, recommend treatment or handle emergencies. A qualified medical professional must interpret your X-ray alongside your symptoms and clinical history.</p>
       </section>
 
@@ -100,3 +101,4 @@ export function LandingPage() {
     </main>
   )
 }
+
