@@ -48,10 +48,11 @@ app:
   ai:
     mode: ${AI_MODE:real}
     base-url: ${AI_BASE_URL:http://localhost:8090}
-    timeout: ${AI_TIMEOUT:PT30S}
+    timeout: ${AI_TIMEOUT:PT120S}
   explanation:
     mode: ${EXPLANATION_MODE:groq}
     base-url: ${GROQ_BASE_URL:https://api.groq.com/openai/v1}
     api-key: ${GROQ_API_KEY:}
     model: ${GROQ_MODEL:openai/gpt-oss-20b}
     timeout: ${GROQ_TIMEOUT:PT15S}
+
