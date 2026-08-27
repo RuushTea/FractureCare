@@ -28,9 +28,16 @@ export function HistoryPage() {
       <section className="history-card">
         {!history ? <div className="loading-card"><span className="spinner"></span>Loading history…</div>
           : history.content.length === 0 ? <div className="empty-state"><HistoryIcon /><h2>No analyses yet</h2><p>Your completed X-ray reviews will appear here.</p><button className="primary-button compact" onClick={() => navigate('/dashboard')}>Upload an X-ray</button></div>
-            : <><div className="history-list">{history.content.map(prediction => <article key={prediction.id} className="history-row"><div className="history-ref">FC-{String(prediction.id).padStart(6, '0')}</div><div><strong>{prediction.originalFileName}</strong><span>{formatDate(prediction.createdAt)}</span></div><StatusPill value={prediction.status === 'COMPLETED' ? prediction.riskCategory : prediction.status} /><div className="history-confidence"><strong>{percentage(prediction.confidence)}</strong><span>confidence</span></div><button className="icon-button" onClick={() => navigate(`/results/${prediction.id}`)} aria-label={`View result ${prediction.id}`}><EyeIcon />View</button></article>)}</div>
+            : <><div className="history-list">{history.content.map(prediction => <article key={prediction.id} className="history-row"><div className="history-ref">FC-{String(prediction.id).padStart(6, '0')}</div><div><strong>{prediction.originalFileName}</strong><span>{formatDate(prediction.createdAt)}</span>{prediction.professionalReview && <span>Does the X-ray show a fracture? {professionalFractureAnswer(prediction)}</span>}</div><StatusPill value={prediction.status === 'COMPLETED' ? prediction.riskCategory : prediction.status} /><div className="history-confidence"><strong>{percentage(prediction.confidence)}</strong><span>confidence</span></div><button className="icon-button" onClick={() => navigate(`/results/${prediction.id}`)} aria-label={`View result ${prediction.id}`}><EyeIcon />View</button></article>)}</div>
               <div className="pagination"><span>Page {history.page + 1} of {Math.max(history.totalPages, 1)} · {history.totalElements} result{history.totalElements === 1 ? '' : 's'}</span><div><button className="secondary-button compact" disabled={history.first} onClick={() => setPage(current => current - 1)}>Previous</button><button className="secondary-button compact" disabled={history.last} onClick={() => setPage(current => current + 1)}>Next</button></div></div></>}
       </section>
     </AppShell>
   )
 }
+
+function professionalFractureAnswer(prediction: Prediction) {
+  if (prediction.professionalReview?.status !== 'COMPLETED') return 'Awaiting review'
+  const aiShowsFracture = prediction.predictedClass !== 'NO_FRACTURE'
+  return prediction.professionalReview.agreesWithAi === aiShowsFracture ? 'Yes' : 'No'
+}
+
