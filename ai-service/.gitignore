@@ -5,4 +5,11 @@ __pycache__/
 .env
 artifacts/*
 !artifacts/.gitkeep
+!artifacts/fracture_classifier.keras
+!artifacts/model_metadata.json
+!artifacts/model_comparison.csv
+!artifacts/tuned_model_comparison.csv
+!artifacts/tuning_results.csv
+!artifacts/model_metric_comparison.png
+!artifacts/fracture_metric_comparison.png
 
