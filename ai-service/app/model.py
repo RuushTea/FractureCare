@@ -23,8 +23,10 @@ def _compile(model: tf.keras.Model, learning_rate: float = 1e-3) -> tf.keras.Mod
     return model
 
 
-def build_model(input_shape: tuple[int, int, int] = (*IMAGE_SIZE, 3)) -> tf.keras.Model:
-    """Build a compact baseline CNN suitable for later experimentation in PyCharm."""
+def build_model(
+    input_shape: tuple[int, int, int] = (*IMAGE_SIZE, 3),
+    learning_rate: float = 1e-3,
+) -> tf.keras.Model:
     inputs = tf.keras.Input(shape=input_shape, name="xray")
     x = tf.keras.layers.Rescaling(1.0 / 255.0)(inputs)
     x = tf.keras.layers.RandomRotation(0.035)(x)
@@ -40,21 +42,23 @@ def build_model(input_shape: tuple[int, int, int] = (*IMAGE_SIZE, 3)) -> tf.kera
     x = tf.keras.layers.Dropout(0.35)(x)
     outputs = tf.keras.layers.Dense(len(CLASS_NAMES), activation="softmax", name="class_probabilities")(x)
     model = tf.keras.Model(inputs, outputs, name="fracatlas_fracture_classifier")
-    return _compile(model)
+    return _compile(model, learning_rate)
 
 
 def build_transfer_model(
     backbone_name: str,
     input_shape: tuple[int, int, int] = (*IMAGE_SIZE, 3),
     weights: str | None = "imagenet",
+    learning_rate: float = 1e-3,
 ) -> tf.keras.Model:
-    """Build a frozen ImageNet transfer-learning classifier for model comparison."""
+
     if backbone_name not in {"mobilenetv2", "efficientnetb0"}:
         raise ValueError(f"Unsupported transfer-learning backbone: {backbone_name}")
 
     inputs = tf.keras.Input(shape=input_shape, name="xray")
     x = tf.keras.layers.RandomRotation(0.035)(inputs)
     x = tf.keras.layers.RandomZoom(0.08)(x)
+
     if backbone_name == "mobilenetv2":
         x = tf.keras.applications.mobilenet_v2.preprocess_input(x)
         backbone = tf.keras.applications.MobileNetV2(
@@ -64,13 +68,14 @@ def build_transfer_model(
         backbone = tf.keras.applications.EfficientNetB0(
             include_top=False, weights=weights, input_shape=input_shape, pooling="avg"
         )
+
     backbone.trainable = False
     x = backbone(x, training=False)
     x = tf.keras.layers.Dense(128, activation="relu")(x)
     x = tf.keras.layers.Dropout(0.35)(x)
     outputs = tf.keras.layers.Dense(len(CLASS_NAMES), activation="softmax", name="class_probabilities")(x)
     model = tf.keras.Model(inputs, outputs, name=f"fracatlas_{backbone_name}")
-    return _compile(model)
+    return _compile(model, learning_rate)
 
 
 def decode_image(raw: bytes) -> np.ndarray:

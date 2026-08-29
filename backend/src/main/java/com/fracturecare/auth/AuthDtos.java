@@ -26,14 +26,14 @@ public final class AuthDtos {
             @NotBlank String password
     ) {}
 
-    public record ProfessionalRegisterRequest(
+    public record AdminCreateProfessionalRequest(
             @NotBlank @Size(min = 2, max = 120) String fullName,
             @NotBlank @Email @Size(max = 190) String email,
-            @NotBlank @Size(min = 3, max = 60) @Pattern(regexp = "^[A-Za-z0-9._-]+$", message = "may contain letters, numbers, dots, underscores and hyphens") String username,
-            @NotBlank @Size(min = 10, max = 72) @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$", message = "must include an uppercase letter, lowercase letter and number") String password
+            @NotBlank @Size(min = 10, max = 72)
+            @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$",
+                    message = "must include an uppercase letter, lowercase letter and number")
+            String password
     ) {}
-
-    public record ProfessionalLoginRequest(@NotBlank String username, @NotBlank String password) {}
 
     public record UserResponse(Long id, String fullName, String email, String username, AccountRole role, String address, Instant createdAt) {
         public static UserResponse from(com.fracturecare.user.UserAccount user) {

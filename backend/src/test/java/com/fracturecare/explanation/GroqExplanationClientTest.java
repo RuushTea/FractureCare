@@ -39,7 +39,7 @@ class GroqExplanationClientTest {
             AppProperties properties = new AppProperties(null, null, null,
                     new AppProperties.Explanation("groq",
                             "http://127.0.0.1:" + server.getAddress().getPort() + "/openai/v1",
-                            "${TEST_API_KEY}", "openai/gpt-oss-20b", Duration.ofSeconds(2)), null);
+                            "test-api-key", "openai/gpt-oss-20b", Duration.ofSeconds(2)), null);
             GroqExplanationClient client = new GroqExplanationClient(properties, new ObjectMapper());
 
             ExplanationResult result = client.explain(PredictionClass.ONE_FRACTURE,
@@ -47,7 +47,7 @@ class GroqExplanationClientTest {
 
             assertEquals(ExplanationSource.GROQ, result.source());
             assertEquals("openai/gpt-oss-20b", result.model());
-            assertEquals("Bearer ${TEST_API_KEY}", authorization.get());
+            assertEquals("Bearer test-api-key", authorization.get());
             assertTrue(requestBody.get().contains("ONE_FRACTURE"));
             assertTrue(requestBody.get().contains("87.0%"));
             assertFalse(requestBody.get().contains("email"));

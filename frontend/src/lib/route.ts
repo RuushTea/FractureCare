@@ -4,14 +4,13 @@ export type Route =
   | { name: 'home' }
   | { name: 'login' }
   | { name: 'register' }
-  | { name: 'professional-login' }
-  | { name: 'professional-register' }
   | { name: 'dashboard' }
   | { name: 'history' }
   | { name: 'result'; id: number }
   | { name: 'notifications' }
   | { name: 'professional-reviews' }
   | { name: 'professional-review'; id: number }
+  | { name: 'admin-professional-create' }
 
 function parseHash(): Route {
   const hash = window.location.hash.replace(/^#/, '') || '/'
@@ -20,8 +19,7 @@ function parseHash(): Route {
   const professionalReview = hash.match(/^\/professional\/reviews\/(\d+)$/)
   if (professionalReview) return { name: 'professional-review', id: Number(professionalReview[1]) }
   if (hash === '/professional/reviews') return { name: 'professional-reviews' }
-  if (hash === '/professional/login') return { name: 'professional-login' }
-  if (hash === '/professional/register') return { name: 'professional-register' }
+  if (hash === '/admin/professionals/new') return { name: 'admin-professional-create' }
   if (hash === '/login') return { name: 'login' }
   if (hash === '/register') return { name: 'register' }
   if (hash === '/history') return { name: 'history' }

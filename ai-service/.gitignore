@@ -12,4 +12,4 @@ artifacts/*
 !artifacts/tuning_results.csv
 !artifacts/model_metric_comparison.png
 !artifacts/fracture_metric_comparison.png
-
+!artifacts/FINAL_MODEL_METRICS.csv

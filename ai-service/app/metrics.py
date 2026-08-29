@@ -68,4 +68,3 @@ def select_best_result(results: list[dict[str, Any]]) -> dict[str, Any]:
             str(result["model"]),
         ),
     )
-

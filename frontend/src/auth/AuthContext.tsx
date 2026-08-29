@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [token])
 
   useEffect(() => {
-    if (!token || !user || user.role !== 'USER') { setUnreadCount(0); return }
+    if (!token || !user) { setUnreadCount(0); return }
     const refresh = () => api.unreadNotifications(token).then(result => setUnreadCount(result.count)).catch(() => undefined)
     refresh()
     const timer = window.setInterval(refresh, 45_000)

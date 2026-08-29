@@ -32,8 +32,7 @@ export const api = {
     request<AuthResponse>('/api/auth/register', { method: 'POST', body: JSON.stringify(body) }),
   login: (body: { email: string; password: string }) =>
     request<AuthResponse>('/api/auth/login', { method: 'POST', body: JSON.stringify(body) }),
-  professionalRegister: (body: { fullName: string; email: string; username: string; password: string }) => request<AuthResponse>('/api/auth/professional/register', { method: 'POST', body: JSON.stringify(body) }),
-  professionalLogin: (body: { username: string; password: string }) => request<AuthResponse>('/api/auth/professional/login', { method: 'POST', body: JSON.stringify(body) }),
+  createProfessional: (body: { fullName: string; email: string; password: string }, token: string) => request<User>('/api/admin/professionals', { method: 'POST', body: JSON.stringify(body) }, token),
   me: (token: string) => request<User>('/api/auth/me', {}, token),
   createPrediction: (image: File, token: string) => {
     const form = new FormData()

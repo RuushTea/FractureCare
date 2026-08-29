@@ -19,7 +19,7 @@ async def lifespan(_: FastAPI):
     global runtime_model, runtime_metadata
     runtime_model, runtime_metadata = load_artifact()
     if runtime_model is None:
-        logger.warning("No trained model found at %s. Run train.py before prediction.", MODEL_PATH)
+        logger.warning("No trained model found at %s. Run the training notebook before prediction.", MODEL_PATH)
     yield
     runtime_model = None
     runtime_metadata = {}

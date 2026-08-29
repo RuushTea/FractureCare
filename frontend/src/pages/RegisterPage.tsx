@@ -49,7 +49,6 @@ export function RegisterPage() {
         <button className="primary-button" disabled={busy}>{busy ? 'Creating account…' : 'Create account'}<ArrowIcon /></button>
       </form>
       <p className="auth-switch">Already have an account? <button className="inline-link" onClick={() => navigate('/login')}>Sign in</button></p>
-      <p className="auth-switch"><button className="inline-link" onClick={() => navigate('/professional/register')}>Register as a medical professional</button></p>
     </AuthShell>
   )
 }

@@ -13,13 +13,13 @@ export function Logo() {
   )
 }
 
-export function AppShell({ active, children }: { active: 'dashboard' | 'history' | 'result' | 'notifications' | 'professional'; children: ReactNode }) {
+export function AppShell({ active, children }: { active: 'dashboard' | 'history' | 'result' | 'notifications' | 'professional' | 'admin'; children: ReactNode }) {
   const { user, logout, unreadCount } = useAuth()
   return (
     <div className="app-shell">
       <header className="topbar">
         <Logo />
-        <nav aria-label="Main navigation">{user?.role === 'MEDICAL_PROFESSIONAL' ? <button className={active === 'professional' ? 'nav-link active' : 'nav-link'} onClick={() => navigate('/professional/reviews')}><HistoryIcon />Reviews</button> : <><button className={active === 'dashboard' ? 'nav-link active' : 'nav-link'} onClick={() => navigate('/dashboard')}><UploadIcon />New analysis</button><button className={active === 'history' ? 'nav-link active' : 'nav-link'} onClick={() => navigate('/history')}><HistoryIcon />History</button><button className={active === 'notifications' ? 'nav-link active' : 'nav-link'} onClick={() => navigate('/notifications')}>Notifications{unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}</button></>}</nav>
+        <nav aria-label="Main navigation"><button className={active === 'dashboard' ? 'nav-link active' : 'nav-link'} onClick={() => navigate('/dashboard')}><UploadIcon />New analysis</button><button className={active === 'history' ? 'nav-link active' : 'nav-link'} onClick={() => navigate('/history')}><HistoryIcon />History</button><button className={active === 'notifications' ? 'nav-link active' : 'nav-link'} onClick={() => navigate('/notifications')}>Notifications{unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}</button>{(user?.role === 'MEDICAL_PROFESSIONAL' || user?.role === 'ADMIN') && <button className={active === 'professional' ? 'nav-link active' : 'nav-link'} onClick={() => navigate('/professional/reviews')}><HistoryIcon />Reviews</button>}{user?.role === 'ADMIN' && <button className={active === 'admin' ? 'nav-link active' : 'nav-link'} onClick={() => navigate('/admin/professionals/new')}>Create professional</button>}</nav>
         <div className="account-menu">
           <span className="avatar" aria-hidden="true">{user?.fullName?.charAt(0).toUpperCase() ?? 'U'}</span>
           <div><strong>{user?.fullName}</strong><span>{user?.email}</span></div>
@@ -56,4 +56,3 @@ export function AuthShell({ children, heading, intro }: { children: ReactNode; h
     </main>
   )
 }
-

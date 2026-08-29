@@ -3,7 +3,7 @@ export type User = {
   fullName: string
   email: string
   username?: string
-  role: 'USER' | 'MEDICAL_PROFESSIONAL'
+  role: 'USER' | 'MEDICAL_PROFESSIONAL' | 'ADMIN'
   address?: string
   createdAt: string
 }
@@ -59,4 +59,3 @@ export type ReportResponse = {
   generatedAt: string
   downloadUrl: string
 }
-

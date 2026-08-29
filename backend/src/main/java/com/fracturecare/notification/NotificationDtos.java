@@ -22,4 +22,3 @@ public final class NotificationDtos {
     }
     public record UnreadCount(long count) {}
 }
-

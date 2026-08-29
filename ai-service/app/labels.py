@@ -4,9 +4,7 @@ from typing import Any
 
 CLASS_NAMES = ("NO_FRACTURE", "ONE_FRACTURE", "MULTIPLE_FRACTURES")
 
-
 def to_service_class(row: Any) -> str:
-    """Convert one FracAtlas CSV row into the application class contract."""
     fracture_count = int(row["fracture_count"] or 0)
     fractured = int(row["fractured"] or 0)
     if fractured == 0 or fracture_count == 0:

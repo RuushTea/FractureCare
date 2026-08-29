@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="FractureCare Backend - MySQL" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <option name="ACTIVE_PROFILES" value="mysql" />
+    <envs>
+      <env name="GROQ_API_KEY" value="" />
+    </envs>
+    <module name="fracturecare-backend" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.fracturecare.FractureCareApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
