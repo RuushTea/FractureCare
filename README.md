@@ -53,8 +53,8 @@ Frontend, in a second terminal:
 
 ```powershell
 cd frontend
-pnpm install
-pnpm dev --host 127.0.0.1
+npm install
+npm start dev
 ```
 
 Open `http://127.0.0.1:5173`.
