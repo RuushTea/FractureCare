@@ -35,17 +35,6 @@ public class AuthController {
         return authService.login(request);
     }
 
-    @PostMapping("/professional/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public AuthDtos.AuthResponse registerProfessional(@Valid @RequestBody AuthDtos.ProfessionalRegisterRequest request) {
-        return authService.registerProfessional(request);
-    }
-
-    @PostMapping("/professional/login")
-    public AuthDtos.AuthResponse loginProfessional(@Valid @RequestBody AuthDtos.ProfessionalLoginRequest request) {
-        return authService.loginProfessional(request);
-    }
-
     @GetMapping("/me")
     public AuthDtos.UserResponse me(Authentication authentication) {
         return users.findById(CurrentUser.from(authentication).id())

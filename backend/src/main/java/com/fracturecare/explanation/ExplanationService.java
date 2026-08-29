@@ -29,7 +29,7 @@ public class ExplanationService {
         try {
             return groq.explain(predictedClass, riskCategory, confidence, predictionModelVersion);
         } catch (RuntimeException exception) {
-            log.warn("Groq explanation was unavailable; using the rule-based fallback: {}", exception.getMessage());
+            log.warn("Groq explanation was unavailable: using the rule-based fallback: {}", exception.getMessage());
             return rules.explain(predictedClass, riskCategory, confidence, predictionModelVersion);
         }
     }

@@ -18,8 +18,9 @@ export function LoginPage() {
     setError('')
     setBusy(true)
     try {
-      accept(await api.login({ email, password }))
-      navigate('/dashboard')
+      const response = await api.login({ email, password })
+      accept(response)
+      navigate(response.user.role === 'MEDICAL_PROFESSIONAL' ? '/professional/reviews' : '/dashboard')
     } catch (exception) {
       setError(exception instanceof ApiError ? exception.message : 'Sign in could not be completed.')
     } finally {
@@ -36,7 +37,7 @@ export function LoginPage() {
         <button className="primary-button" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}<ArrowIcon /></button>
       </form>
       <p className="auth-switch">New to FractureCare? <button className="inline-link" onClick={() => navigate('/register')}>Create an account</button></p>
-      <p className="auth-switch"><button className="inline-link" onClick={() => navigate('/professional/login')}>Medical professional sign in</button></p>
+      <p className="auth-switch">Medical professionals sign in here with their email and password.</p>
     </AuthShell>
   )
 }

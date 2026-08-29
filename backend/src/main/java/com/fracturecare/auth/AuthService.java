@@ -57,26 +57,13 @@ public class AuthService {
     }
 
     @Transactional
-    public AuthDtos.AuthResponse registerProfessional(AuthDtos.ProfessionalRegisterRequest request) {
+    public AuthDtos.AuthResponse createProfessional(AuthDtos.AdminCreateProfessionalRequest request) {
         String email = normalizeEmail(request.email());
-        String username = normalizeUsername(request.username());
-        if (users.existsByEmailIgnoreCase(email)) throw new ConflictException("An account already exists for this email address.");
-        if (users.existsByUsernameIgnoreCase(username)) throw new ConflictException("That username is already in use.");
-        UserAccount user = users.save(new UserAccount(request.fullName().trim(), email, username,
-                passwordEncoder.encode(request.password()), AccountRole.MEDICAL_PROFESSIONAL, Instant.now()));
-        return response(user);
-    }
-
-    @Transactional(readOnly = true)
-    public AuthDtos.AuthResponse loginProfessional(AuthDtos.ProfessionalLoginRequest request) {
-        String username = normalizeUsername(request.username());
-        loginAttempts.checkAllowed("professional:" + username);
-        UserAccount user = users.findByUsernameIgnoreCase(username).orElse(null);
-        if (user == null || user.getRole() != AccountRole.MEDICAL_PROFESSIONAL || !passwordEncoder.matches(request.password(), user.getPasswordHash())) {
-            loginAttempts.failed("professional:" + username);
-            throw new UnauthorizedException("The username or password is incorrect.");
+        if (users.existsByEmailIgnoreCase(email)) {
+            throw new ConflictException("An account already exists for this email address.");
         }
-        loginAttempts.succeeded("professional:" + username);
+        UserAccount user = users.save(new UserAccount(request.fullName().trim(), email, null,
+                passwordEncoder.encode(request.password()), AccountRole.MEDICAL_PROFESSIONAL, Instant.now()));
         return response(user);
     }
 
@@ -93,5 +80,4 @@ public class AuthService {
         return value == null || value.isBlank() ? null : value.trim();
     }
 
-    private String normalizeUsername(String username) { return username.trim().toLowerCase(Locale.ROOT); }
 }

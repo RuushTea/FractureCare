@@ -23,6 +23,17 @@ The loader searches recursively under `images/`, so the supplied FracAtlas layou
 
 The notebooks create a stratified train/validation/test split, calculate class weights for the imbalanced dataset, train three independent Keras classifiers, compare their per-class and macro metrics, and write the selected model plus comparison results to `artifacts/`. The comparison notebook also exports `model_metric_comparison.png` (accuracy, macro precision, macro recall and macro F1) and `fracture_metric_comparison.png` (fracture-class precision, recall and F1) for the project report.
 
+## Canonical metric results
+
+Use `artifacts/FINAL_MODEL_METRICS.csv` as the single report-ready metric table. It contains the measured validation results for the untuned and hyperparameter-tuned comparisons, plus the selected EfficientNetB0 model's held-out test results. Human-readable `average_*` columns represent the average across the three classes; `fracture_average_*` columns average the two fracture classes.
+
+The source notebooks are:
+
+- `notebooks/FracAtlas_Model_Comparison.ipynb` creates the untuned comparison in `artifacts/model_comparison.csv`.
+- `notebooks/04_Hyperparameter_Tuning.ipynb` creates the best tuned result for each architecture in `artifacts/tuned_model_comparison.csv` and writes the selected model's final test metrics to `artifacts/model_metadata.json`.
+
+The other per-model metric JSON files and trial-level CSVs are intermediate training outputs and are not used by the FastAPI runtime.
+
 
 ## API
 
@@ -36,13 +47,9 @@ The notebooks create a stratified train/validation/test split, calculate class w
 }
 ```
 
-Train one architecture at a time with the same reproducible data split:
+Train one architecture at a time with the same reproducible data split by opening `notebooks/01_Custom_CNN.ipynb`, `02_MobileNetV2.ipynb`, or `03_EfficientNetB0.ipynb`.
 
-```powershell
-python train.py --model custom_cnn
-python train.py --model mobilenetv2
-python train.py --model efficientnetb0
-```
+Open `notebooks/04_Hyperparameter_Tuning.ipynb` to run the reproducible learning-rate, batch-size, and majority-undersampling search across all three architectures in one run. It selects the best architecture and saves the final model for the API.
 
 Performance values are written only after a local training/evaluation run; no metrics are fabricated in this repository.
 

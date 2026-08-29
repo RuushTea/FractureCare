@@ -84,3 +84,28 @@ def split_manifest(frame: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.
         test.reset_index(drop=True),
     )
 
+
+def undersample_majority(
+    frame: pd.DataFrame,
+    target_minority_fraction: float = 0.10,
+    majority_label_index: int = 0,
+) -> pd.DataFrame:
+    """Reduce only NO_FRACTURE examples so the rarest class reaches the target share.
+
+    The validation and test manifests must remain untouched. A seeded sample keeps
+    this operation reproducible while retaining every fracture example.
+    """
+    if not 0 < target_minority_fraction < 1:
+        raise ValueError("target_minority_fraction must be between 0 and 1")
+    majority = frame[frame["label_index"] == majority_label_index]
+    minority = frame[frame["label_index"] != majority_label_index]
+    if majority.empty or minority.empty:
+        return frame.reset_index(drop=True)
+    rarest_count = int(frame["label_index"].value_counts().min())
+    target_majority = int(rarest_count * (1 - target_minority_fraction) / target_minority_fraction)
+    if target_majority >= len(majority):
+        return frame.reset_index(drop=True)
+    sampled_majority = majority.sample(n=max(target_majority, 1), random_state=SEED)
+    return pd.concat([sampled_majority, minority], ignore_index=True).sample(
+        frac=1, random_state=SEED
+    ).reset_index(drop=True)

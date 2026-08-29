@@ -32,7 +32,7 @@ public class ProfessionalReviewService {
     @Transactional
     public ProfessionalReviewDtos.UserReviewState request(Long userId, Long predictionId) {
         UserAccount owner = users.findById(userId).orElseThrow(() -> new NotFoundException("User account was not found."));
-        if (owner.getRole() != AccountRole.USER) throw new BadRequestException("Only normal users can request professional review.");
+        if (owner.getRole() == AccountRole.MEDICAL_PROFESSIONAL) throw new BadRequestException("Medical professionals cannot request professional review.");
         Prediction prediction = predictions.findByIdAndUserId(predictionId, userId).orElseThrow(() -> new NotFoundException("Prediction was not found."));
         if (prediction.getStatus() != PredictionStatus.COMPLETED) throw new BadRequestException("Only a completed prediction can be sent for professional review.");
         if (reviews.findByPredictionId(predictionId).isPresent()) throw new ConflictException("A professional review has already been requested.");
@@ -60,7 +60,7 @@ public class ProfessionalReviewService {
     @Transactional
     public ProfessionalReviewDtos.ReviewDetail complete(Long reviewId, Long professionalId, ProfessionalReviewDtos.CompleteRequest request) {
         UserAccount professional = users.findById(professionalId).orElseThrow(() -> new NotFoundException("Professional account was not found."));
-        if (professional.getRole() != AccountRole.MEDICAL_PROFESSIONAL) throw new ConflictException("Only medical professionals can complete reviews.");
+        if (professional.getRole() != AccountRole.MEDICAL_PROFESSIONAL && professional.getRole() != AccountRole.ADMIN) throw new ConflictException("Only medical professionals or admins can complete reviews.");
         ProfessionalReview review = find(reviewId);
         if (review.getStatus() != ProfessionalReviewStatus.PENDING) throw new ConflictException("This review has already been completed.");
         review.complete(professional, request.agreesWithAi(), request.comment());

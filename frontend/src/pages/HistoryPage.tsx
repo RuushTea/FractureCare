@@ -40,4 +40,3 @@ function professionalFractureAnswer(prediction: Prediction) {
   const aiShowsFracture = prediction.predictedClass !== 'NO_FRACTURE'
   return prediction.professionalReview.agreesWithAi === aiShowsFracture ? 'Yes' : 'No'
 }
-

@@ -81,4 +81,3 @@ public class HttpInferenceClient implements InferenceClient {
 
     private void write(ByteArrayOutputStream output, String value) throws IOException { output.write(value.getBytes(StandardCharsets.UTF_8)); }
 }
-

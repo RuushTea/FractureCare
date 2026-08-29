@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="FractureCare Backend - Local" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="fracturecare-backend" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.fracturecare.FractureCareApplication" />
+    <option name="ACTIVE_PROFILES" value="local" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
