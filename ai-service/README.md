@@ -21,11 +21,11 @@ The loader searches recursively under `images/`, so the supplied FracAtlas layou
 | `fracture_count=1` | `ONE_FRACTURE` |
 | `fracture_count>=2` | `MULTIPLE_FRACTURES` |
 
-The notebooks create a stratified train/validation/test split, calculate class weights for the imbalanced dataset, train three independent Keras classifiers, compare their per-class and macro metrics, and write the selected model plus comparison results to `artifacts/`. The comparison notebook also exports `model_metric_comparison.png` (accuracy, macro precision, macro recall and macro F1) and `fracture_metric_comparison.png` (fracture-class precision, recall and F1) for the project report.
+The notebooks create a stratified train/validation/test split, calculate class weights for the imbalanced dataset, train three independent Keras classifiers, compare their accuracy and class-average precision, recall and F1, and write the selected model plus comparison results to `artifacts/`. Model selection prioritizes average recall, followed by average F1, average precision and accuracy. The comparison notebook exports `model_metric_comparison.png`, which contains exactly these four report metrics.
 
 ## Canonical metric results
 
-Use `artifacts/FINAL_MODEL_METRICS.csv` as the single report-ready metric table. It contains the measured validation results for the untuned and hyperparameter-tuned comparisons, plus the selected EfficientNetB0 model's held-out test results. Human-readable `average_*` columns represent the average across the three classes; `fracture_average_*` columns average the two fracture classes.
+Use `artifacts/FINAL_MODEL_METRICS.csv` as the single report-ready metric table. It contains the measured validation results for the untuned and hyperparameter-tuned comparisons, plus the selected model's held-out test results. The report columns are `accuracy`, `average_precision`, `average_recall` and `average_f1`; each average is calculated equally across the three application classes.
 
 The source notebooks are:
 

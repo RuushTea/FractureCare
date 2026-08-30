@@ -1,0 +1,89 @@
+{
+  "modelVersion": "fracatlas-efficientnetb0-tuned-1.0.0",
+  "selectedModel": "efficientnetb0",
+  "architecture": "efficientnetb0",
+  "classes": [
+    "NO_FRACTURE",
+    "ONE_FRACTURE",
+    "MULTIPLE_FRACTURES"
+  ],
+  "imageSize": [
+    224,
+    224
+  ],
+  "dataset": "FracAtlas",
+  "trainCount": 3219,
+  "validationCount": 402,
+  "testCount": 403,
+  "selectionMetric": "average_recall",
+  "selectedHyperparameters": {
+    "learning_rate": 0.001,
+    "batch_size": 16,
+    "undersample_majority": false,
+    "effective_train_count": 3219
+  },
+  "comparison": [
+    {
+      "model": "efficientnetb0",
+      "trial": 1,
+      "learning_rate": 0.001,
+      "batch_size": 16,
+      "undersample_majority": false,
+      "effective_train_count": 3219,
+      "accuracy": 0.8208955223880597,
+      "average_precision": 0.611672278338945,
+      "average_recall": 0.6216500251213835,
+      "average_f1": 0.6165048414165912,
+      "model_path": "/mnt/c/Users/Rushd/OneDrive - wslqd/Documents/Uni Documents/ICBT/Development Project Final Year/Final Documents/fracturecare-prototype/ai-service/artifacts/tuning/efficientnetb0_best.keras"
+    },
+    {
+      "model": "mobilenetv2",
+      "trial": 2,
+      "learning_rate": 0.001,
+      "batch_size": 16,
+      "undersample_majority": true,
+      "effective_train_count": 1807,
+      "accuracy": 0.7736318407960199,
+      "average_precision": 0.6092219226977174,
+      "average_recall": 0.5353410694030326,
+      "average_f1": 0.5451625573415743,
+      "model_path": "/mnt/c/Users/Rushd/OneDrive - wslqd/Documents/Uni Documents/ICBT/Development Project Final Year/Final Documents/fracturecare-prototype/ai-service/artifacts/tuning/mobilenetv2_best.keras"
+    },
+    {
+      "model": "custom_cnn",
+      "trial": 1,
+      "learning_rate": 0.001,
+      "batch_size": 16,
+      "undersample_majority": false,
+      "effective_train_count": 3219,
+      "accuracy": 0.8233830845771144,
+      "average_precision": 0.27446102819237145,
+      "average_recall": 0.3333333333333333,
+      "average_f1": 0.3010459299681673,
+      "model_path": "/mnt/c/Users/Rushd/OneDrive - wslqd/Documents/Uni Documents/ICBT/Development Project Final Year/Final Documents/fracturecare-prototype/ai-service/artifacts/tuning/custom_cnn_best.keras"
+    }
+  ],
+  "finalTestMetrics": {
+    "accuracy": 0.8411910669975186,
+    "average_precision": 0.6469958126399845,
+    "average_recall": 0.638362656240744,
+    "average_f1": 0.6403776020753634
+  },
+  "confusionMatrix": [
+    [
+      299,
+      26,
+      6
+    ],
+    [
+      21,
+      33,
+      1
+    ],
+    [
+      6,
+      4,
+      7
+    ]
+  ]
+}
