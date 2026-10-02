@@ -1,0 +1,14 @@
+# Demonstration only: mock predictions and ephemeral storage.
+services:
+  - type: web
+    name: fracturecare-demo
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.render
+    dockerContext: .
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: APP_JWT_SECRET
+        generateValue: true
+      - key: EXPLANATION_MODE
+        value: rules
