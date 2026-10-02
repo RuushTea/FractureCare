@@ -1,0 +1,27 @@
+FROM node:24-alpine AS frontend
+WORKDIR /build/frontend
+RUN corepack enable
+COPY frontend/package.json frontend/pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+COPY frontend/ ./
+ENV VITE_API_BASE_URL=""
+RUN pnpm build
+
+FROM maven:3.9-eclipse-temurin-21 AS backend
+WORKDIR /build/backend
+COPY backend/pom.xml ./
+COPY backend/src/ ./src/
+RUN mvn -q -DskipTests package
+
+FROM eclipse-temurin:21-jre-alpine
+RUN apk add --no-cache nginx && adduser -D -u 10001 fracturecare \
+    && mkdir -p /app/data/local /app/data/uploads /app/data/reports /app/tmp \
+    && chown -R fracturecare:fracturecare /app
+WORKDIR /app
+COPY --from=backend /build/backend/target/fracturecare-backend-*.jar /app/app.jar
+COPY --from=frontend /build/frontend/dist/ /app/public/
+COPY deploy/nginx-render.conf /app/nginx.conf
+COPY deploy/start-render.sh /app/start.sh
+USER fracturecare
+EXPOSE 10000
+ENTRYPOINT ["/bin/sh", "/app/start.sh"]
